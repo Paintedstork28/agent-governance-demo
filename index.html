@@ -1,0 +1,2417 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Data Governance — 5-Layer Framework</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ================================================================
+   THEME VARIABLES
+   ================================================================ */
+:root {
+  /* Accent palette (shared) */
+  --accent: #627eea;
+  --accent-light: #8da4f0;
+  --accent-bg: rgba(98,126,234,0.08);
+  --green: #2e7d32;
+  --green-bg: rgba(46,125,50,0.08);
+  --amber: #e6a100;
+  --amber-bg: rgba(230,161,0,0.08);
+  --orange: #bf5600;
+  --orange-bg: rgba(191,86,0,0.08);
+  --blue: #1565c0;
+  --blue-bg: rgba(21,101,192,0.08);
+  --muted: #9e9e9e;
+}
+
+/* Light theme */
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-secondary: #f8f9ff;
+  --bg-tertiary: #f0f2f8;
+  --surface: #ffffff;
+  --surface-raised: #f8f9ff;
+  --border: #e2e4ea;
+  --border-subtle: #eef0f4;
+  --text: #1a1a2e;
+  --text-secondary: #555;
+  --text-muted: #888;
+  --text-dim: #aaa;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md: 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,0.1);
+  --code-bg: #f0f2f8;
+  --payload-bg: #f4f5fa;
+  --table-header: #f0f2f8;
+  --table-hover: rgba(98,126,234,0.04);
+  --badge-low-bg: rgba(46,125,50,0.1); --badge-low-c: #2e7d32;
+  --badge-med-bg: rgba(230,161,0,0.1); --badge-med-c: #b88a00;
+  --badge-high-bg: rgba(191,86,0,0.1); --badge-high-c: #bf5600;
+  --badge-crit-bg: rgba(191,86,0,0.15); --badge-crit-c: #a04000;
+  --tag-pass-bg: rgba(46,125,50,0.1); --tag-pass-c: #2e7d32;
+  --tag-sens-bg: rgba(191,86,0,0.1); --tag-sens-c: #bf5600;
+  --tag-enc-bg: rgba(21,101,192,0.1); --tag-enc-c: #1565c0;
+  --tag-strip-bg: rgba(0,0,0,0.05); --tag-strip-c: #999;
+  --tag-bool-bg: rgba(46,125,50,0.08); --tag-bool-c: #2e7d32; --tag-bool-bdr: #2e7d32;
+  --check-l1-bg: rgba(98,126,234,0.06); --check-l1-bdr: #627eea; --check-l1-c: #4a64c0;
+  --check-l2-bg: rgba(230,161,0,0.06); --check-l2-bdr: #e6a100; --check-l2-c: #b88a00;
+  --check-l3-bg: rgba(21,101,192,0.06); --check-l3-bdr: #1565c0; --check-l3-c: #1565c0;
+  --check-l4-bg: rgba(46,125,50,0.06); --check-l4-bdr: #2e7d32; --check-l4-c: #2e7d32;
+  --check-res-bg: rgba(0,0,0,0.03); --check-res-bdr: #ccc; --check-res-c: #333;
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+  --bg: #0f1117;
+  --bg-secondary: #161822;
+  --bg-tertiary: #1c1f2e;
+  --surface: #1a1d27;
+  --surface-raised: #232734;
+  --border: #2d3148;
+  --border-subtle: #252838;
+  --text: #e8eaf0;
+  --text-secondary: #b0b4c4;
+  --text-muted: #7a7f94;
+  --text-dim: #555;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md: 0 2px 8px rgba(0,0,0,0.4);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,0.5);
+  --code-bg: #232734;
+  --payload-bg: #12141e;
+  --table-header: #232734;
+  --table-hover: rgba(98,126,234,0.06);
+  --badge-low-bg: rgba(76,175,80,0.15); --badge-low-c: #66bb6a;
+  --badge-med-bg: rgba(255,179,0,0.15); --badge-med-c: #ffca28;
+  --badge-high-bg: rgba(230,81,0,0.15); --badge-high-c: #ff9800;
+  --badge-crit-bg: rgba(230,81,0,0.2); --badge-crit-c: #ff6d00;
+  --tag-pass-bg: rgba(76,175,80,0.15); --tag-pass-c: #66bb6a;
+  --tag-sens-bg: rgba(255,152,0,0.15); --tag-sens-c: #ff9800;
+  --tag-enc-bg: rgba(66,165,245,0.15); --tag-enc-c: #42a5f5;
+  --tag-strip-bg: rgba(255,255,255,0.05); --tag-strip-c: #666;
+  --tag-bool-bg: rgba(76,175,80,0.12); --tag-bool-c: #66bb6a; --tag-bool-bdr: #66bb6a;
+  --check-l1-bg: rgba(98,126,234,0.08); --check-l1-bdr: #627eea; --check-l1-c: #8da4f0;
+  --check-l2-bg: rgba(255,179,0,0.08); --check-l2-bdr: #ffb300; --check-l2-c: #ffca28;
+  --check-l3-bg: rgba(66,165,245,0.08); --check-l3-bdr: #42a5f5; --check-l3-c: #64b5f6;
+  --check-l4-bg: rgba(76,175,80,0.08); --check-l4-bdr: #4caf50; --check-l4-c: #66bb6a;
+  --check-res-bg: rgba(255,255,255,0.03); --check-res-bdr: #555; --check-res-c: #ccc;
+  --accent: #8da4f0;
+  --green: #66bb6a;
+  --amber: #ffca28;
+  --orange: #ff9800;
+  --blue: #64b5f6;
+}
+
+/* ================================================================
+   RESET & BASE
+   ================================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
+}
+code {
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.85em;
+  background: var(--code-bg);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+/* ================================================================
+   HEADER
+   ================================================================ */
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 32px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+}
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.header-left h1 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: var(--text);
+}
+.header-left .subtitle {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Settings gear */
+.settings-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+.settings-btn:hover { border-color: var(--accent); color: var(--accent); }
+.settings-btn svg { width: 14px; height: 14px; }
+
+/* Settings panel */
+.settings-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 200;
+}
+.settings-overlay.open { display: block; }
+.settings-panel {
+  position: fixed;
+  top: 0; right: 0;
+  width: 340px;
+  max-width: 90vw;
+  height: 100vh;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  padding: 28px 24px;
+  z-index: 201;
+  overflow-y: auto;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+}
+.settings-overlay.open .settings-panel { transform: translateX(0); }
+.settings-panel h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.settings-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  padding: 4px;
+}
+.setting-group {
+  margin-bottom: 24px;
+}
+.setting-group label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+.setting-row .setting-name {
+  font-size: 0.85rem;
+  color: var(--text);
+}
+.setting-row .setting-desc {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Toggle switch */
+.toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle .slider {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.toggle .slider::before {
+  content: '';
+  position: absolute;
+  width: 18px; height: 18px;
+  left: 3px; bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: all 0.3s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.toggle input:checked + .slider { background: var(--accent); }
+.toggle input:checked + .slider::before { transform: translateX(20px); }
+
+/* Select dropdown */
+.setting-select {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+/* ================================================================
+   TABS
+   ================================================================ */
+.tabs {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-top: 12px;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 10px 18px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+.tab-btn:hover { color: var(--text-secondary); }
+.tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+
+/* ================================================================
+   MAIN CONTENT
+   ================================================================ */
+.main { padding: 28px 32px; max-width: 1200px; margin: 0 auto; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.section-header {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--accent);
+}
+.section-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.3px;
+}
+.section-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 6px;
+  max-width: 700px;
+}
+
+/* ================================================================
+   CARDS
+   ================================================================ */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
+}
+.card h3 {
+  font-size: 0.92rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card h3 .card-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: white;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+/* ================================================================
+   PIPELINE
+   ================================================================ */
+.pipeline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+.pipe-node {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 20px;
+  width: 100%;
+  max-width: 640px;
+  position: relative;
+  transition: all 0.3s;
+  box-shadow: var(--shadow-sm);
+}
+.pipe-node:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--accent);
+}
+.pipe-node .node-type {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 4px;
+}
+.pipe-node .node-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.pipe-node .node-meta {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.pipe-node .node-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.field-tag {
+  font-size: 0.68rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+.field-tag.pass { background: var(--tag-pass-bg); color: var(--tag-pass-c); }
+.field-tag.sensitive { background: var(--tag-sens-bg); color: var(--tag-sens-c); }
+.field-tag.encrypted { background: var(--tag-enc-bg); color: var(--tag-enc-c); }
+.field-tag.stripped { background: var(--tag-strip-bg); color: var(--tag-strip-c); text-decoration: line-through; }
+.field-tag.boolean { background: var(--tag-bool-bg); color: var(--tag-bool-c); border: 1px dashed var(--tag-bool-bdr); }
+
+.pipe-arrow {
+  width: 2px;
+  height: 20px;
+  background: var(--border);
+  position: relative;
+}
+.pipe-arrow::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: -4px;
+  width: 0; height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid var(--border);
+}
+
+/* Node type colors */
+.type-trigger { color: var(--amber); }
+.type-agent { color: var(--accent); }
+.type-llm { color: var(--blue); }
+.type-tool { color: var(--green); }
+.type-handoff { color: var(--orange); }
+.type-response { color: var(--green); }
+
+/* ================================================================
+   CONTEXT GRAPH (Property Graph Style)
+   ================================================================ */
+.cg-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 20px;
+}
+@media (max-width: 900px) {
+  .cg-wrapper { grid-template-columns: 1fr; }
+}
+.cg-canvas {
+  position: relative;
+  min-height: 700px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  overflow: hidden;
+}
+.cg-canvas svg.cg-edges {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+.cg-canvas svg.cg-edges line {
+  stroke: var(--border);
+  stroke-width: 1.5;
+}
+.cg-canvas svg.cg-edges .edge-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 9px;
+  fill: var(--text-muted);
+  text-anchor: middle;
+}
+.cg-canvas svg.cg-edges .edge-label-bg {
+  fill: var(--surface-raised);
+}
+.cg-canvas svg.cg-edges marker path {
+  fill: var(--text-muted);
+}
+
+/* Graph node */
+.cg-node {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: 220px;
+  transition: transform 0.2s;
+}
+.cg-node:hover { transform: scale(1.03); }
+.cg-node .cg-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
+  border: 2px solid white;
+}
+.cg-icon-trigger { background: var(--amber-bg); border-color: var(--amber) !important; }
+.cg-icon-agent { background: var(--accent-bg); border-color: var(--accent) !important; }
+.cg-icon-llm { background: var(--blue-bg); border-color: var(--blue) !important; }
+.cg-icon-tool { background: var(--green-bg); border-color: var(--green) !important; }
+.cg-icon-handoff { background: var(--orange-bg); border-color: var(--orange) !important; }
+.cg-icon-response { background: var(--green-bg); border-color: var(--green) !important; }
+
+.cg-node .cg-body {
+  min-width: 0;
+}
+.cg-node .cg-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 3px;
+}
+.cg-node .cg-type-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+.cg-node .cg-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+.cg-node .cg-field {
+  font-size: 0.6rem;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--code-bg);
+  color: var(--text-secondary);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+.cg-node .cg-field.sens {
+  background: var(--tag-sens-bg);
+  color: var(--tag-sens-c);
+}
+.cg-node .cg-field.f-pass { background: var(--tag-pass-bg); color: var(--tag-pass-c); }
+.cg-node .cg-field.f-encrypted { background: var(--tag-enc-bg); color: var(--tag-enc-c); }
+.cg-node .cg-field.f-boolean { background: var(--tag-bool-bg); color: var(--tag-bool-c); border: 1px dashed var(--tag-bool-bdr); }
+.cg-node .cg-field.f-stripped { background: var(--tag-strip-bg); color: var(--tag-strip-c); text-decoration: line-through; }
+
+/* View toggle */
+.cg-view-toggle {
+  display: flex;
+  gap: 0;
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  width: fit-content;
+}
+.cg-view-btn {
+  padding: 8px 18px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  font-family: inherit;
+  border: none;
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  border-right: 1px solid var(--border);
+}
+.cg-view-btn:last-child { border-right: none; }
+.cg-view-btn.active {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+.cg-view-btn:not(.active):hover {
+  background: var(--surface-raised);
+  color: var(--text);
+}
+
+/* Edge enforcement summary badges */
+.cg-edge-badge {
+  display: inline-block;
+  font-size: 0.58rem;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-weight: 600;
+  margin-left: 2px;
+}
+.cg-edge-badge.eb-pass { background: var(--tag-pass-bg); color: var(--tag-pass-c); }
+.cg-edge-badge.eb-enc { background: var(--tag-enc-bg); color: var(--tag-enc-c); }
+.cg-edge-badge.eb-bool { background: var(--tag-bool-bg); color: var(--tag-bool-c); }
+.cg-edge-badge.eb-strip { background: var(--tag-strip-bg); color: var(--tag-strip-c); }
+
+/* Sidebar panels */
+.cg-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.cg-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+.cg-panel h4 {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.cg-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+.cg-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1.5px solid;
+}
+.cg-edge-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 0;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+.cg-edge-arrow {
+  color: var(--text-muted);
+  font-size: 0.65rem;
+}
+.cg-edge-data {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-family: 'SF Mono', monospace;
+  margin-left: auto;
+}
+.cg-constraint {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.cg-constraint:last-child { border-bottom: none; }
+.cg-constraint strong { color: var(--text); font-weight: 600; }
+
+/* ================================================================
+   STATS GRID (Silent Pay style)
+   ================================================================ */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 18px 22px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+.stat-card .stat-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.stat-card .stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--text);
+}
+.stat-card .stat-sub {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+/* ================================================================
+   TABLE WRAP (Silent Pay style)
+   ================================================================ */
+.table-wrap {
+  background: var(--surface);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 24px;
+}
+.table-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.table-bar h3 {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* ================================================================
+   TABLES
+   ================================================================ */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+.data-table th {
+  background: var(--table-header);
+  padding: 10px 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.data-table td {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: middle;
+  color: var(--text);
+  font-size: 0.82rem;
+}
+.table-wrap .data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--table-hover); }
+
+/* Pill badges (Silent Pay style) */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+.badge-low { background: var(--badge-low-bg); color: var(--badge-low-c); }
+.badge-medium { background: var(--badge-med-bg); color: var(--badge-med-c); }
+.badge-high { background: var(--badge-high-bg); color: var(--badge-high-c); }
+.badge-critical { background: var(--badge-crit-bg); color: var(--badge-crit-c); }
+.badge-yes { background: var(--badge-high-bg); color: var(--badge-high-c); }
+.badge-no { background: var(--badge-low-bg); color: var(--badge-low-c); }
+.badge-pass { background: var(--tag-pass-bg); color: var(--tag-pass-c); }
+.badge-enc { background: var(--tag-enc-bg); color: var(--tag-enc-c); }
+.badge-bool { background: var(--tag-bool-bg); color: var(--tag-bool-c); }
+.badge-strip { background: var(--tag-strip-bg); color: var(--tag-strip-c); }
+.what-sent {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.what-sent.ws-enc { color: var(--blue); }
+.what-sent.ws-bool { color: var(--green); }
+.what-sent.ws-strip { color: var(--text-dim); text-decoration: line-through; }
+
+.access-actual { color: var(--green); font-weight: 500; }
+.access-verify { color: var(--blue); font-weight: 500; }
+.access-none { color: var(--text-dim); }
+
+/* ================================================================
+   BUTTONS (Silent Pay style)
+   ================================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { opacity: 0.88; }
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+.btn-sm { padding: 5px 10px; font-size: 0.72rem; }
+.btn-danger { color: var(--orange); }
+.btn-danger:hover { color: var(--badge-high-c); }
+
+/* ================================================================
+   INLINE EDIT ROW
+   ================================================================ */
+.edit-row {
+  background: var(--surface-raised);
+  border-top: 2px solid var(--accent);
+}
+.edit-row td {
+  padding: 14px 16px !important;
+  background: var(--surface-raised) !important;
+}
+.edit-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-end;
+}
+.edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.edit-field label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+.edit-field input,
+.edit-field select {
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-family: inherit;
+  background: var(--surface);
+  color: var(--text);
+  min-width: 100px;
+}
+.edit-field input:focus,
+.edit-field select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-bg);
+}
+.edit-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-left: auto;
+}
+
+/* Access select inline */
+.access-select {
+  padding: 5px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-family: inherit;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  min-width: 120px;
+}
+.access-select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.access-select.val-actual { border-color: var(--green); color: var(--green); }
+.access-select.val-verify { border-color: var(--blue); color: var(--blue); }
+.access-select.val-none { border-color: var(--border); color: var(--text-dim); }
+
+/* ================================================================
+   AGENT CARDS (L3)
+   ================================================================ */
+.agent-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.agent-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.agent-card-header:hover { background: var(--table-hover); }
+.agent-card-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.agent-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+.agent-avatar.av-ch { background: var(--accent); }
+.agent-avatar.av-rb { background: var(--green); }
+.agent-card-info h4 {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.agent-card-info .agent-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+.agent-card-badges {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.agent-expand {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  transition: transform 0.2s;
+}
+.agent-card.open .agent-expand { transform: rotate(180deg); }
+.agent-card-body {
+  display: none;
+  border-top: 1px solid var(--border);
+}
+.agent-card.open .agent-card-body { display: block; }
+
+/* Change indicator */
+.change-flash {
+  animation: flashGreen 0.6s ease;
+}
+@keyframes flashGreen {
+  0% { background: var(--badge-low-bg); }
+  100% { background: transparent; }
+}
+
+/* ================================================================
+   ENFORCEMENT GRID
+   ================================================================ */
+.enforce-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.enforce-card {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.2s;
+}
+.enforce-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--accent);
+}
+.enforce-card .ec-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.enforce-card .ec-cond {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.enforce-card .ec-result {
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+/* ================================================================
+   AUDIT LOG
+   ================================================================ */
+.audit-table-wrap {
+  overflow-x: auto;
+  border-radius: 8px;
+}
+.audit-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.72rem;
+  min-width: 1100px;
+}
+.audit-table th {
+  background: var(--table-header);
+  padding: 8px 10px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.68rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+}
+.audit-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: top;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text);
+}
+.audit-table tr:hover td { background: var(--table-hover); }
+.hash-val {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.68rem;
+  color: var(--accent);
+}
+
+.meta-card {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  box-shadow: var(--shadow-sm);
+}
+.meta-item label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  display: block;
+  margin-bottom: 4px;
+}
+.meta-item span {
+  font-size: 0.85rem;
+  color: var(--text);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+/* Regulator section */
+.reg-section {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--blue);
+  border-radius: 0 10px 10px 0;
+  padding: 20px 24px;
+  margin-top: 24px;
+}
+.reg-section h4 {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--blue);
+  margin-bottom: 12px;
+}
+.reg-step {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  padding: 4px 0;
+}
+.reg-step strong { color: var(--text); }
+.reg-verdict { color: var(--green); font-weight: 600; }
+
+/* ================================================================
+   LIVE DEMO
+   ================================================================ */
+.demo-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 20px;
+}
+@media (max-width: 768px) {
+  .demo-layout { grid-template-columns: 1fr; }
+}
+.demo-sidebar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  max-height: 70vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-sm);
+}
+.demo-sidebar .mini-node {
+  padding: 8px 10px;
+  border-radius: 6px;
+  margin-bottom: 3px;
+  font-size: 0.73rem;
+  border: 1px solid transparent;
+  transition: all 0.3s;
+}
+.demo-sidebar .mini-node.done {
+  color: var(--text-dim);
+}
+.demo-sidebar .mini-node.current {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  color: var(--text);
+  font-weight: 500;
+}
+.demo-sidebar .mini-node.pending {
+  color: var(--text-dim);
+}
+.mini-arrow {
+  text-align: center;
+  color: var(--border);
+  font-size: 0.65rem;
+  margin: 1px 0;
+}
+
+.demo-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px;
+  min-height: 400px;
+  box-shadow: var(--shadow-sm);
+}
+.demo-controls {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  align-items: center;
+}
+.demo-btn {
+  padding: 8px 18px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-family: inherit;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+.demo-btn:hover { border-color: var(--accent); color: var(--accent); }
+.demo-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.demo-btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.demo-btn.primary:hover { opacity: 0.9; }
+.demo-btn.primary:disabled { opacity: 0.35; }
+
+.step-counter {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+.demo-step-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+
+.check-panel { margin-top: 4px; }
+.check-step {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  border-left: 3px solid var(--border);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: all 0.4s ease;
+}
+.check-step.no-animate {
+  transition: none;
+}
+.check-step.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.check-step .ck-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+.check-step .ck-body {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.check-l1 { border-left-color: var(--check-l1-bdr); background: var(--check-l1-bg); }
+.check-l1 .ck-label { color: var(--check-l1-c); }
+.check-l2 { border-left-color: var(--check-l2-bdr); background: var(--check-l2-bg); }
+.check-l2 .ck-label { color: var(--check-l2-c); }
+.check-l3 { border-left-color: var(--check-l3-bdr); background: var(--check-l3-bg); }
+.check-l3 .ck-label { color: var(--check-l3-c); }
+.check-l4 { border-left-color: var(--check-l4-bdr); background: var(--check-l4-bg); }
+.check-l4 .ck-label { color: var(--check-l4-c); }
+.check-result { border-left-color: var(--check-res-bdr); background: var(--check-res-bg); }
+.check-result .ck-label { color: var(--check-res-c); }
+
+.payload-box {
+  background: var(--payload-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.78rem;
+  color: var(--text);
+  white-space: pre-wrap;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 8px;
+}
+
+/* ================================================================
+   COMPACT MODE
+   ================================================================ */
+.compact .pipe-node { padding: 10px 14px; }
+.compact .pipe-node .node-label { font-size: 0.82rem; }
+.compact .pipe-node .node-fields { gap: 3px; }
+.compact .pipe-arrow { height: 14px; }
+.compact .data-table td { padding: 6px 10px; }
+.compact .data-table th { padding: 8px 10px; }
+.compact .card { padding: 16px; }
+.compact .check-step { padding: 8px 12px; margin-bottom: 6px; }
+
+/* ================================================================
+   RESPONSIVE
+   ================================================================ */
+@media (max-width: 600px) {
+  .header { padding: 16px 16px 0; }
+  .header-top { flex-wrap: wrap; }
+  .main { padding: 16px; }
+  .tab-btn { padding: 8px 12px; font-size: 0.75rem; }
+  .pipe-node { padding: 10px 14px; }
+  .enforce-grid { grid-template-columns: 1fr; }
+  .meta-card { grid-template-columns: 1fr; }
+  .settings-panel { width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<!-- ========== HEADER ========== -->
+<div class="header">
+  <div class="header-top">
+    <div class="header-left">
+      <h1>Agent Data Governance Framework</h1>
+      <div class="subtitle">5-Layer enforcement model for multi-agent workflows</div>
+    </div>
+    <div class="header-right">
+      <button class="settings-btn" id="settings-toggle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </button>
+    </div>
+  </div>
+  <div class="tabs" id="tabs">
+    <button class="tab-btn active" data-tab="l1">L1: Context Graph</button>
+    <button class="tab-btn" data-tab="l2">L2: Data Tagging</button>
+    <button class="tab-btn" data-tab="l3">L3: Access Control</button>
+    <button class="tab-btn" data-tab="l4">L4: Enforcement</button>
+    <button class="tab-btn" data-tab="l5">L5: Audit Trail</button>
+    <button class="tab-btn" data-tab="demo">Live Demo</button>
+  </div>
+</div>
+
+<!-- ========== SETTINGS PANEL ========== -->
+<div class="settings-overlay" id="settings-overlay">
+  <div class="settings-panel">
+    <h2>
+      Settings
+      <button class="settings-close" id="settings-close">&times;</button>
+    </h2>
+
+    <div class="setting-group">
+      <label>Appearance</label>
+      <div class="setting-row">
+        <div>
+          <div class="setting-name">Dark mode</div>
+          <div class="setting-desc">Switch between light and dark theme</div>
+        </div>
+        <div class="toggle">
+          <input type="checkbox" id="toggle-theme">
+          <span class="slider"></span>
+        </div>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-name">Compact layout</div>
+          <div class="setting-desc">Reduce spacing for denser views</div>
+        </div>
+        <div class="toggle">
+          <input type="checkbox" id="toggle-compact">
+          <span class="slider"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <label>Live Demo</label>
+      <div class="setting-row">
+        <div>
+          <div class="setting-name">Animation speed</div>
+          <div class="setting-desc">How fast checks appear</div>
+        </div>
+        <select class="setting-select" id="select-speed">
+          <option value="100">Fast (100ms)</option>
+          <option value="200" selected>Normal (200ms)</option>
+          <option value="400">Slow (400ms)</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-name">Animations</div>
+          <div class="setting-desc">Enable slide-in transitions</div>
+        </div>
+        <div class="toggle">
+          <input type="checkbox" id="toggle-animations" checked>
+          <span class="slider"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <label>Data Display</label>
+      <div class="setting-row">
+        <div>
+          <div class="setting-name">Show field sources</div>
+          <div class="setting-desc">Display source info on pipeline nodes</div>
+        </div>
+        <div class="toggle">
+          <input type="checkbox" id="toggle-sources" checked>
+          <span class="slider"></span>
+        </div>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-name">Hash display</div>
+          <div class="setting-desc">Show full or truncated hashes</div>
+        </div>
+        <select class="setting-select" id="select-hash">
+          <option value="short" selected>Truncated</option>
+          <option value="long">Full (24 chars)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== MAIN ========== -->
+<div class="main" id="main-content">
+
+  <!-- TAB 1: Context Graph -->
+  <div class="tab-content active" id="tab-l1">
+    <div class="section-header">
+      <div class="section-title">Layer 1 — Context Graph</div>
+      <div class="section-desc">Property graph of the complaint → refund workflow. Nodes = entities (agents, tools, data). Edges = data/context flow with constraints.</div>
+    </div>
+    <div class="cg-view-toggle">
+      <button class="cg-view-btn active" data-view="blueprint" onclick="setCgView('blueprint')">Blueprint</button>
+      <button class="cg-view-btn" data-view="protected" onclick="setCgView('protected')">Protected (L2+L3+L4)</button>
+    </div>
+    <div class="cg-wrapper">
+      <div class="cg-canvas" id="cg-canvas">
+        <svg class="cg-edges" id="cg-edges"></svg>
+      </div>
+      <div class="cg-sidebar" id="cg-sidebar"></div>
+    </div>
+  </div>
+
+  <!-- TAB 2: Data Tagging -->
+  <div class="tab-content" id="tab-l2">
+    <div class="section-header">
+      <div class="section-title">Layer 2 — Data Tagging</div>
+      <div class="section-desc">Enterprise data classification register. Every field tagged with sensitivity level — defined once, applies to all workflows.</div>
+    </div>
+    <div class="stats-grid" id="l2-stats"></div>
+    <div class="table-wrap">
+      <div class="table-bar">
+        <h3>Field Classification Register</h3>
+        <button class="btn btn-primary btn-sm" onclick="startAddField()">+ Add Field</button>
+      </div>
+      <table class="data-table" id="tagging-table">
+        <thead>
+          <tr><th>#</th><th>Source</th><th>Field</th><th>Sensitive</th><th>Level</th><th>Rationale</th><th style="width:100px">Actions</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB 3: Access Control -->
+  <div class="tab-content" id="tab-l3">
+    <div class="section-header">
+      <div class="section-title">Layer 3 — Access Control</div>
+      <div class="section-desc">Per-agent access policies. Each agent has its own access card — expand to view and edit field-level permissions.</div>
+    </div>
+    <div class="stats-grid" id="l3-stats"></div>
+    <div id="l3-agents"></div>
+  </div>
+
+  <!-- TAB 4: Enforcement -->
+  <div class="tab-content" id="tab-l4">
+    <div class="section-header">
+      <div class="section-title">Layer 4 — Enforcement</div>
+      <div class="section-desc">L2 (sensitivity) + L3 (access) = enforcement decision. Five modes determine how each field is handled at runtime.</div>
+    </div>
+    <div class="card">
+      <h3><span class="card-icon">4</span> Enforcement Decision Matrix</h3>
+      <div class="enforce-grid" id="enforce-grid"></div>
+    </div>
+    <div id="l4-agent-maps"></div>
+    <div class="card">
+      <h3><span class="card-icon" style="background:var(--green)">P</span> Protected Workflow — Enforcement Applied</h3>
+      <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:16px">Same pipeline as Layer 1, now showing what each step actually receives after enforcement.</div>
+      <div class="pipeline" id="pipeline-l4"></div>
+    </div>
+  </div>
+
+  <!-- TAB 5: Audit Trail -->
+  <div class="tab-content" id="tab-l5">
+    <div class="section-header">
+      <div class="section-title">Layer 5 — Audit Trail</div>
+      <div class="section-desc">Cryptographic audit log. Every step recorded with hash chain — tamper-evident, regulator-queryable.</div>
+    </div>
+    <div class="meta-card" id="audit-meta"></div>
+    <div class="card">
+      <h3><span class="card-icon">5</span> Audit Log</h3>
+      <div class="audit-table-wrap">
+        <table class="audit-table" id="audit-table">
+          <thead>
+            <tr><th>#</th><th>Timestamp</th><th>Step</th><th>Agent</th><th>Action</th><th>Fields Received</th><th>L2 Tags</th><th>L3 Access</th><th>L4 Enforcement</th><th>What LLM Received</th><th>Entry Hash</th><th>Prev Hash</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="reg-section">
+      <h4>Regulator Query Example</h4>
+      <div class="reg-step"><strong>Claim:</strong> "RefundBot never saw the merchant's raw UPI ID"</div>
+      <div class="reg-step"><strong>Step 1:</strong> Locate audit entry #7 (RefundBot receives handoff payload)</div>
+      <div class="reg-step"><strong>Step 2:</strong> Check L3 column — RefundBot access to upi_id = "Verification"</div>
+      <div class="reg-step"><strong>Step 3:</strong> Check L4 column — Enforcement = "Compute-and-replace (boolean)"</div>
+      <div class="reg-step"><strong>Step 4:</strong> Check "What LLM Received" — upi_id field shows <code style="color:var(--green)">is_valid_upi: true</code>, not the raw value</div>
+      <div class="reg-step"><strong>Step 5:</strong> Verify hash chain integrity — each entry hash includes the previous hash</div>
+      <div class="reg-step reg-verdict" style="margin-top:10px"><strong>Verdict:</strong> Claim verified. RefundBot received a boolean, not the raw UPI ID.</div>
+    </div>
+  </div>
+
+  <!-- TAB 6: Live Demo -->
+  <div class="tab-content" id="tab-demo">
+    <div class="section-header">
+      <div class="section-title">Live Demo</div>
+      <div class="section-desc">Step through the workflow and watch all 4 governance layers enforce in real time at each step.</div>
+    </div>
+    <div class="demo-layout">
+      <div class="demo-sidebar" id="demo-sidebar"></div>
+      <div class="demo-panel">
+        <div class="demo-controls">
+          <button class="demo-btn" id="btn-prev" disabled>Previous</button>
+          <button class="demo-btn primary" id="btn-next">Next Step</button>
+          <button class="demo-btn" id="btn-reset">Reset</button>
+          <span class="step-counter" id="step-counter">Step 0 / 14</span>
+        </div>
+        <div class="demo-step-title" id="demo-step-title"></div>
+        <div class="check-panel" id="check-panel"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ================================================================
+// SETTINGS STATE
+// ================================================================
+const settings = {
+  theme: 'light',
+  compact: false,
+  animSpeed: 200,
+  animations: true,
+  showSources: true,
+  hashDisplay: 'short',
+};
+
+// ================================================================
+// DATA
+// ================================================================
+const workflowSteps = [
+  { id:1,  type:'trigger',  label:'Merchant Email Received',         agent:'\u2014',                          fields:['sender_email','merchant_name','complaint_text','order_id'], source:'Email gateway' },
+  { id:2,  type:'agent',    label:'Complaint Handler starts',        agent:'Complaint Handler',               fields:['sender_email','merchant_name','complaint_text','order_id'], source:'Trigger input' },
+  { id:3,  type:'llm',      label:'LLM Call 1: Classify complaint',  agent:'Complaint Handler',               fields:['complaint_text','merchant_name'], source:'Context' },
+  { id:4,  type:'tool',     label:'CRM Tool: Merchant lookup',       agent:'Complaint Handler',               fields:['merchant_name','merchant_id','upi_id','merchant_tier'], source:'CRM database' },
+  { id:5,  type:'llm',      label:'LLM Call 2: Route decision',      agent:'Complaint Handler',               fields:['complaint_text','merchant_tier','merchant_id'], source:'Context + CRM' },
+  { id:6,  type:'handoff',  label:'Handoff \u2192 RefundBot',        agent:'Complaint Handler \u2192 RefundBot', fields:['order_id','merchant_id','complaint_text','merchant_tier','upi_id'], source:'Complaint Handler context' },
+  { id:7,  type:'agent',    label:'RefundBot starts',                agent:'RefundBot',                       fields:['order_id','merchant_id','complaint_text','merchant_tier','upi_id'], source:'Handoff payload' },
+  { id:8,  type:'tool',     label:'Order System: Order lookup',      agent:'RefundBot',                       fields:['order_id','order_amount','order_date','order_status'], source:'Order database' },
+  { id:9,  type:'llm',      label:'LLM Call 3: Evaluate refund',     agent:'RefundBot',                       fields:['complaint_text','order_amount','order_status','merchant_tier','upi_id'], source:'Context + Order' },
+  { id:10, type:'tool',     label:'Treasury API: Float balance',     agent:'RefundBot',                       fields:['float_balance','pool_account'], source:'Treasury system' },
+  { id:11, type:'llm',      label:'LLM Call 4: Decide refund',       agent:'RefundBot',                       fields:['order_amount','float_balance','pool_account','merchant_tier'], source:'Context + Treasury' },
+  { id:12, type:'tool',     label:'Payment Gateway: Execute refund', agent:'RefundBot',                       fields:['order_id','order_amount','upi_id','pool_account','txn_ref'], source:'Payment gateway' },
+  { id:13, type:'handoff',  label:'Handoff \u2192 Complaint Handler',agent:'RefundBot \u2192 Complaint Handler', fields:['refund_status','txn_ref','order_amount'], source:'RefundBot result' },
+  { id:14, type:'llm',      label:'LLM Call 5: Draft reply email',   agent:'Complaint Handler',               fields:['merchant_name','refund_status','txn_ref','order_amount'], source:'Context + RefundBot result' },
+];
+
+const fieldRegistry = [
+  { n:1,  source:'Email',      field:'sender_email',  sensitive:false, level:'Low',      why:'Business email, not personal PII in B2B context' },
+  { n:2,  source:'Email',      field:'merchant_name',  sensitive:false, level:'Low',      why:'Public business name' },
+  { n:3,  source:'Email',      field:'complaint_text', sensitive:false, level:'Low',      why:'Operational text, no embedded secrets' },
+  { n:4,  source:'Email',      field:'order_id',       sensitive:false, level:'Low',      why:'Internal reference number' },
+  { n:5,  source:'CRM',        field:'merchant_id',    sensitive:false, level:'Low',      why:'Internal identifier' },
+  { n:6,  source:'CRM',        field:'upi_id',         sensitive:true,  level:'High',     why:'Financial account identifier \u2014 can enable unauthorized transactions' },
+  { n:7,  source:'CRM',        field:'merchant_tier',  sensitive:false, level:'Low',      why:'Business classification' },
+  { n:8,  source:'Order DB',   field:'order_amount',   sensitive:true,  level:'Medium',   why:'Transaction value \u2014 commercially sensitive' },
+  { n:9,  source:'Order DB',   field:'order_date',     sensitive:false, level:'Low',      why:'Timestamp, not sensitive' },
+  { n:10, source:'Order DB',   field:'order_status',   sensitive:false, level:'Low',      why:'Operational status flag' },
+  { n:11, source:'Treasury',   field:'float_balance',  sensitive:true,  level:'Critical', why:'Company treasury position \u2014 board-level confidential' },
+  { n:12, source:'Treasury',   field:'pool_account',   sensitive:true,  level:'Critical', why:'Settlement account number \u2014 highest sensitivity' },
+  { n:13, source:'Payment GW', field:'txn_ref',        sensitive:true,  level:'Medium',   why:'Transaction reference \u2014 can be used for tracing' },
+  { n:14, source:'RefundBot',  field:'refund_status',  sensitive:false, level:'Low',      why:'Operational outcome flag' },
+];
+
+const accessMatrix = [
+  { field:'sender_email',   ch:'Actual value', rb:'No access' },
+  { field:'merchant_name',  ch:'Actual value', rb:'No access' },
+  { field:'complaint_text', ch:'Actual value', rb:'Actual value' },
+  { field:'order_id',       ch:'Actual value', rb:'Actual value' },
+  { field:'merchant_id',    ch:'Actual value', rb:'Actual value' },
+  { field:'upi_id',         ch:'Verification', rb:'Verification' },
+  { field:'merchant_tier',  ch:'Actual value', rb:'Actual value' },
+  { field:'order_amount',   ch:'Verification', rb:'Actual value' },
+  { field:'order_date',     ch:'Actual value', rb:'Actual value' },
+  { field:'order_status',   ch:'Actual value', rb:'Actual value' },
+  { field:'float_balance',  ch:'No access',    rb:'Verification' },
+  { field:'pool_account',   ch:'No access',    rb:'No access' },
+  { field:'txn_ref',        ch:'Verification', rb:'Actual value' },
+  { field:'refund_status',  ch:'Actual value', rb:'Actual value' },
+];
+
+const enforcementModes = [
+  { title:'Pass-through',       cond:'Not sensitive + Actual value',  result:'Send raw value to LLM',                     colorVar:'--green' },
+  { title:'Strip',              cond:'Not sensitive + No access',     result:'Remove field entirely',                      colorVar:'--muted' },
+  { title:'Encrypted Inference',cond:'Sensitive + Actual value',      result:'MPC / ZK / FHE \u2014 LLM computes on ciphertext', colorVar:'--blue' },
+  { title:'Compute-and-Replace',cond:'Sensitive + Verification',      result:'Compute answer, send boolean/status only',  colorVar:'--green' },
+  { title:'Strip (Sensitive)',  cond:'Sensitive + No access',         result:'Remove field \u2014 agent never sees it',          colorVar:'--muted' },
+];
+
+function getEnforcement(fieldName, agentKey) {
+  const reg = fieldRegistry.find(f => f.field === fieldName);
+  const acc = accessMatrix.find(a => a.field === fieldName);
+  if (!reg || !acc) return { mode:'pass', label:'Pass-through' };
+  const access = agentKey === 'ch' ? acc.ch : acc.rb;
+  if (access === 'No access') return { mode:'strip', label:'Stripped' };
+  if (!reg.sensitive && access === 'Actual value') return { mode:'pass', label:'Pass-through' };
+  if (reg.sensitive && access === 'Actual value') return { mode:'encrypted', label:'Encrypted (FHE/MPC)' };
+  if (reg.sensitive && access === 'Verification') return { mode:'boolean', label:'Boolean only' };
+  return { mode:'pass', label:'Pass-through' };
+}
+
+function agentKeyForStep(step) {
+  return step.agent.toLowerCase().includes('refundbot') ? 'rb' : 'ch';
+}
+
+function mockHash(i, long) {
+  const chars = '0123456789abcdef';
+  const len = long ? 24 : 12;
+  let h = '';
+  for (let j = 0; j < len; j++) h += chars[(i * 7 + j * 3 + j * j) % 16];
+  return long ? h : h + '...';
+}
+
+function getHash(i) {
+  return mockHash(i, settings.hashDisplay === 'long');
+}
+
+const mockVals = {
+  sender_email:'merchant@store.com', merchant_name:'QuickMart', complaint_text:'Refund not received for order...',
+  order_id:'ORD-20260415-7742', merchant_id:'MID-4481', upi_id:'quickmart@upi',
+  merchant_tier:'Gold', order_amount:4500, order_date:'2026-04-15', order_status:'delivered',
+  float_balance:12500000, pool_account:'POOL-HDFC-001', txn_ref:'TXN-REF-98231', refund_status:'approved'
+};
+
+// ================================================================
+// RENDER: CONTEXT GRAPH (Property Graph)
+// ================================================================
+let cgView = 'blueprint'; // 'blueprint' or 'protected'
+
+function setCgView(view) {
+  cgView = view;
+  document.querySelectorAll('.cg-view-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.view === view);
+  });
+  renderContextGraph();
+}
+
+// Graph node definitions
+const graphNodes = [
+  { id:'email',  x:20,  y:30,   type:'trigger',  icon:'\u2709', name:'Merchant Email',            agent:'ch', fields:['sender_email','merchant_name','complaint_text','order_id'] },
+  { id:'ch',     x:220, y:20,   type:'agent',    icon:'\u25C6', name:'Complaint Handler',          agent:'ch', fields:[] },
+  { id:'llm1',   x:420, y:20,   type:'llm',      icon:'\u25CB', name:'LLM 1: Classify',            agent:'ch', fields:['complaint_text','merchant_name'] },
+  { id:'crm',    x:420, y:130,  type:'tool',     icon:'\u25A0', name:'CRM Tool',                   agent:'ch', fields:['merchant_name','merchant_id','upi_id','merchant_tier'] },
+  { id:'llm2',   x:220, y:130,  type:'llm',      icon:'\u25CB', name:'LLM 2: Route',               agent:'ch', fields:['complaint_text','merchant_tier','merchant_id'] },
+  { id:'hoff1',  x:20,  y:230,  type:'handoff',  icon:'\u2192', name:'Handoff \u2192 RefundBot',    agent:'ch', fields:['order_id','merchant_id','complaint_text','merchant_tier','upi_id'] },
+  { id:'rb',     x:220, y:290,  type:'agent',    icon:'\u25C6', name:'RefundBot',                   agent:'rb', fields:[] },
+  { id:'order',  x:420, y:230,  type:'tool',     icon:'\u25A0', name:'Order System',                agent:'rb', fields:['order_id','order_amount','order_date','order_status'] },
+  { id:'llm3',   x:420, y:360,  type:'llm',      icon:'\u25CB', name:'LLM 3: Evaluate',             agent:'rb', fields:['complaint_text','order_amount','order_status','merchant_tier','upi_id'] },
+  { id:'treas',  x:220, y:430,  type:'tool',     icon:'\u25A0', name:'Treasury API',                 agent:'rb', fields:['float_balance','pool_account'] },
+  { id:'llm4',   x:20,  y:430,  type:'llm',      icon:'\u25CB', name:'LLM 4: Decide',               agent:'rb', fields:['order_amount','float_balance','pool_account','merchant_tier'] },
+  { id:'paygw',  x:420, y:480,  type:'tool',     icon:'\u25A0', name:'Payment Gateway',              agent:'rb', fields:['order_id','order_amount','upi_id','pool_account','txn_ref'] },
+  { id:'hoff2',  x:220, y:560,  type:'handoff',  icon:'\u2192', name:'Handoff \u2192 CH',            agent:'rb', fields:['refund_status','txn_ref','order_amount'] },
+  { id:'llm5',   x:20,  y:620,  type:'llm',      icon:'\u25CB', name:'LLM 5: Draft Reply',          agent:'ch', fields:['merchant_name','refund_status','txn_ref','order_amount'] },
+  { id:'resp',   x:220, y:690,  type:'response', icon:'\u2713', name:'Email Response',               agent:'ch', fields:[] },
+];
+
+// Edges: [fromId, toId, label, fields[]]
+const graphEdges = [
+  ['email','ch',   '4 fields',       ['sender_email','merchant_name','complaint_text','order_id'], 'ch'],
+  ['ch','llm1',    'classify',       ['complaint_text','merchant_name'], 'ch'],
+  ['crm','ch',     'merchant data',  ['merchant_name','merchant_id','upi_id','merchant_tier'], 'ch'],
+  ['ch','llm2',    'route',          ['complaint_text','merchant_tier','merchant_id'], 'ch'],
+  ['ch','hoff1',   'delegate',       ['order_id','merchant_id','complaint_text','merchant_tier','upi_id'], 'ch'],
+  ['hoff1','rb',   '5 fields',       ['order_id','merchant_id','complaint_text','merchant_tier','upi_id'], 'rb'],
+  ['rb','order',   'lookup',         ['order_id'], 'rb'],
+  ['order','llm3', 'order data',     ['order_amount','order_date','order_status'], 'rb'],
+  ['rb','llm3',    'evaluate',       ['complaint_text','merchant_tier','upi_id'], 'rb'],
+  ['rb','treas',   'check float',    ['merchant_id'], 'rb'],
+  ['treas','llm4', 'treasury data',  ['float_balance','pool_account'], 'rb'],
+  ['rb','llm4',    'decide',         ['order_amount','merchant_tier'], 'rb'],
+  ['rb','paygw',   'execute',        ['order_id','order_amount','upi_id','pool_account'], 'rb'],
+  ['paygw','hoff2','result',         ['refund_status','txn_ref','order_amount'], 'rb'],
+  ['hoff2','llm5', '3 fields',       ['merchant_name','refund_status','txn_ref','order_amount'], 'ch'],
+  ['llm5','resp',  'send',           ['merchant_name','refund_status','txn_ref'], 'ch'],
+];
+
+function renderContextGraph() {
+  const canvas = document.getElementById('cg-canvas');
+  const svg = document.getElementById('cg-edges');
+  const sidebar = document.getElementById('cg-sidebar');
+  const isProtected = cgView === 'protected';
+
+  // Clear previous nodes
+  canvas.querySelectorAll('.cg-node').forEach(n => n.remove());
+
+  // Render nodes
+  const nodeMap = {};
+  graphNodes.forEach(n => {
+    const div = document.createElement('div');
+    div.className = 'cg-node';
+    div.style.left = n.x + 'px';
+    div.style.top = n.y + 'px';
+    div.id = 'cgn-' + n.id;
+
+    let fieldsHtml = '';
+    if (n.fields.length > 0) {
+      fieldsHtml = '<div class="cg-fields">' + n.fields.map(f => {
+        if (isProtected) {
+          const e = getEnforcement(f, n.agent);
+          if (e.mode === 'strip') return `<span class="cg-field f-stripped">${f}</span>`;
+          if (e.mode === 'encrypted') return `<span class="cg-field f-encrypted">${f} [enc]</span>`;
+          if (e.mode === 'boolean') return `<span class="cg-field f-boolean">is_valid</span>`;
+          return `<span class="cg-field f-pass">${f}</span>`;
+        } else {
+          const r = fieldRegistry.find(x => x.field === f);
+          return `<span class="cg-field${r && r.sensitive ? ' sens' : ''}">${f}</span>`;
+        }
+      }).join('') + '</div>';
+    }
+
+    div.innerHTML = `
+      <div class="cg-icon cg-icon-${n.type}">${n.icon}</div>
+      <div class="cg-body">
+        <div class="cg-type-label type-${n.type}">${n.type}</div>
+        <div class="cg-name">${n.name}</div>
+        ${fieldsHtml}
+      </div>
+    `;
+    canvas.appendChild(div);
+    nodeMap[n.id] = { x: n.x, y: n.y };
+  });
+
+  // SVG edges
+  const ox = 18, oy = 18;
+  let edgesHtml = `<defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" />
+    </marker>
+  </defs>`;
+
+  graphEdges.forEach(([fromId, toId, label]) => {
+    const from = nodeMap[fromId], to = nodeMap[toId];
+    if (!from || !to) return;
+    const x1 = from.x + ox, y1 = from.y + oy;
+    const x2 = to.x + ox, y2 = to.y + oy;
+    const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+    const lw = Math.max(label.length * 5.5, 40);
+    edgesHtml += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" marker-end="url(#arrow)" />`;
+    edgesHtml += `<rect class="edge-label-bg" x="${mx - lw/2}" y="${my - 7}" width="${lw}" height="14" rx="3" />`;
+    edgesHtml += `<text class="edge-label" x="${mx}" y="${my + 3}">${label}</text>`;
+  });
+  svg.innerHTML = edgesHtml;
+
+  // Resize canvas
+  let maxY = 0;
+  graphNodes.forEach(n => { if (n.y > maxY) maxY = n.y; });
+  canvas.style.minHeight = (maxY + 100) + 'px';
+
+  // Render sidebar
+  if (isProtected) {
+    sidebar.innerHTML = buildProtectedSidebar();
+  } else {
+    sidebar.innerHTML = buildBlueprintSidebar();
+  }
+}
+
+function buildBlueprintSidebar() {
+  return `
+    <div class="cg-panel">
+      <h4>Node Legend</h4>
+      <div class="cg-legend-item"><div class="cg-legend-dot" style="background:var(--amber-bg);border-color:var(--amber)"></div> Trigger / External</div>
+      <div class="cg-legend-item"><div class="cg-legend-dot" style="background:var(--accent-bg);border-color:var(--accent)"></div> Agent</div>
+      <div class="cg-legend-item"><div class="cg-legend-dot" style="background:var(--blue-bg);border-color:var(--blue)"></div> LLM Call</div>
+      <div class="cg-legend-item"><div class="cg-legend-dot" style="background:var(--green-bg);border-color:var(--green)"></div> Tool / API</div>
+      <div class="cg-legend-item"><div class="cg-legend-dot" style="background:var(--orange-bg);border-color:var(--orange)"></div> Handoff</div>
+    </div>
+    <div class="cg-panel">
+      <h4>Edge Data Flows</h4>
+      ${graphEdges.map(e => `<div class="cg-edge-row">${e[0]} <span class="cg-edge-arrow">&rarr;</span> ${e[1]} <span class="cg-edge-data">${e[3].length}f</span></div>`).join('')}
+    </div>
+    <div class="cg-panel">
+      <h4>Key Observations</h4>
+      <div class="cg-constraint"><strong>14 unique fields</strong> flow across 16 edges</div>
+      <div class="cg-constraint"><strong>5 sensitive fields</strong> are present (highlighted orange)</div>
+      <div class="cg-constraint"><strong>Handoff</strong> is the trust boundary between agents</div>
+      <div class="cg-constraint">Switch to <strong>Protected</strong> view to see enforcement &rarr;</div>
+    </div>`;
+}
+
+function buildProtectedSidebar() {
+  // Compute enforcement stats per edge
+  let totalPass = 0, totalEnc = 0, totalBool = 0, totalStrip = 0;
+  const edgeDetails = graphEdges.map(([from, to, label, fields, ak]) => {
+    const counts = { pass: 0, encrypted: 0, boolean: 0, strip: 0 };
+    fields.forEach(f => {
+      const e = getEnforcement(f, ak);
+      counts[e.mode]++;
+    });
+    totalPass += counts.pass;
+    totalEnc += counts.encrypted;
+    totalBool += counts.boolean;
+    totalStrip += counts.strip;
+    return { from, to, label, fields, ak, counts };
+  });
+
+  let edgeRows = edgeDetails.map(e => {
+    let badges = '';
+    if (e.counts.pass > 0) badges += `<span class="cg-edge-badge eb-pass">${e.counts.pass}P</span>`;
+    if (e.counts.encrypted > 0) badges += `<span class="cg-edge-badge eb-enc">${e.counts.encrypted}E</span>`;
+    if (e.counts.boolean > 0) badges += `<span class="cg-edge-badge eb-bool">${e.counts.boolean}B</span>`;
+    if (e.counts.strip > 0) badges += `<span class="cg-edge-badge eb-strip">${e.counts.strip}X</span>`;
+    return `<div class="cg-edge-row">${e.from} <span class="cg-edge-arrow">&rarr;</span> ${e.to} ${badges}</div>`;
+  }).join('');
+
+  return `
+    <div class="cg-panel">
+      <h4>Enforcement Legend</h4>
+      <div class="cg-legend-item"><span class="cg-field f-pass" style="font-size:0.68rem">field</span> Pass-through (raw value)</div>
+      <div class="cg-legend-item"><span class="cg-field f-encrypted" style="font-size:0.68rem">field [enc]</span> Encrypted inference</div>
+      <div class="cg-legend-item"><span class="cg-field f-boolean" style="font-size:0.68rem">is_valid</span> Boolean only</div>
+      <div class="cg-legend-item"><span class="cg-field f-stripped" style="font-size:0.68rem">field</span> Stripped (removed)</div>
+    </div>
+    <div class="cg-panel">
+      <h4>Edge Enforcement Summary</h4>
+      ${edgeRows}
+    </div>
+    <div class="cg-panel">
+      <h4>Totals Across All Edges</h4>
+      <div class="cg-constraint"><span class="cg-edge-badge eb-pass">${totalPass}</span> <strong>Pass-through</strong> — raw value sent</div>
+      <div class="cg-constraint"><span class="cg-edge-badge eb-enc">${totalEnc}</span> <strong>Encrypted</strong> — FHE/MPC/ZK</div>
+      <div class="cg-constraint"><span class="cg-edge-badge eb-bool">${totalBool}</span> <strong>Boolean</strong> — compute-and-replace</div>
+      <div class="cg-constraint"><span class="cg-edge-badge eb-strip">${totalStrip}</span> <strong>Stripped</strong> — never reaches LLM</div>
+    </div>
+    <div class="cg-panel">
+      <h4>What Changed</h4>
+      <div class="cg-constraint"><strong>upi_id</strong> \u2192 both agents get <em>is_valid</em> boolean only</div>
+      <div class="cg-constraint"><strong>float_balance</strong> \u2192 RefundBot gets boolean, CH never sees it</div>
+      <div class="cg-constraint"><strong>pool_account</strong> \u2192 stripped everywhere \u2014 no agent's LLM sees it</div>
+      <div class="cg-constraint"><strong>order_amount</strong> \u2192 encrypted for RefundBot, boolean for CH</div>
+      <div class="cg-constraint"><strong>txn_ref</strong> \u2192 encrypted for RefundBot, boolean for CH</div>
+    </div>`;
+}
+
+// ================================================================
+// RENDER: PIPELINE
+// ================================================================
+function renderPipeline(containerId, withEnforcement) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = '';
+  workflowSteps.forEach((step, i) => {
+    const ak = agentKeyForStep(step);
+    let fieldsHtml = '';
+    step.fields.forEach(f => {
+      if (withEnforcement) {
+        const e = getEnforcement(f, ak);
+        const map = { strip:'stripped', encrypted:'encrypted', boolean:'boolean', pass:'pass' };
+        const labelMap = { strip:f, encrypted:f+' [enc]', boolean:'is_valid: true', pass:f };
+        fieldsHtml += `<span class="field-tag ${map[e.mode]}">${labelMap[e.mode]}</span>`;
+      } else {
+        const reg = fieldRegistry.find(x => x.field === f);
+        fieldsHtml += `<span class="field-tag ${reg && reg.sensitive ? 'sensitive' : 'pass'}">${f}</span>`;
+      }
+    });
+    const srcHtml = settings.showSources
+      ? `<div class="node-meta">Source: ${step.source} &middot; Agent: ${step.agent}</div>` : '';
+    el.innerHTML += `
+      <div class="pipe-node">
+        <div class="node-type type-${step.type}">${step.type.toUpperCase()}</div>
+        <div class="node-label">${step.label}</div>
+        ${srcHtml}
+        <div class="node-fields">${fieldsHtml}</div>
+      </div>
+      ${i < workflowSteps.length - 1 ? '<div class="pipe-arrow"></div>' : ''}
+    `;
+  });
+}
+
+// ================================================================
+// RENDER: TABLES
+// ================================================================
+// ================================================================
+// L2: EDITABLE DATA TAGGING
+// ================================================================
+let editingFieldIdx = -1; // -1 = none, -2 = adding new
+
+function renderL2Stats() {
+  const total = fieldRegistry.length;
+  const sens = fieldRegistry.filter(f => f.sensitive).length;
+  const crit = fieldRegistry.filter(f => f.level === 'Critical').length;
+  document.getElementById('l2-stats').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-label">Total Fields</div>
+      <div class="stat-value">${total}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Sensitive</div>
+      <div class="stat-value">${sens}</div>
+      <div class="stat-sub">${total > 0 ? ((sens/total)*100).toFixed(1) : 0}% of all fields</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Critical</div>
+      <div class="stat-value">${crit}</div>
+      <div class="stat-sub">${fieldRegistry.filter(f => f.level === 'Critical').map(f => f.field).join(', ') || 'None'}</div>
+    </div>`;
+}
+
+function renderTaggingTable() {
+  renderL2Stats();
+  const tbody = document.querySelector('#tagging-table tbody');
+  let rows = '';
+
+  fieldRegistry.forEach((f, i) => {
+    const lvlClass = f.level === 'Low' ? 'badge-low' : f.level === 'Medium' ? 'badge-medium' : f.level === 'High' ? 'badge-high' : 'badge-critical';
+    rows += `<tr>
+      <td>${i + 1}</td>
+      <td>${f.source}</td>
+      <td><code>${f.field}</code></td>
+      <td><span class="badge ${f.sensitive ? 'badge-yes' : 'badge-no'}">${f.sensitive ? 'Yes' : 'No'}</span></td>
+      <td><span class="badge ${lvlClass}">${f.level}</span></td>
+      <td style="color:var(--text-muted);font-size:0.78rem">${f.why}</td>
+      <td>
+        <button class="btn btn-outline btn-sm" onclick="startEditField(${i})">Edit</button>
+        <button class="btn btn-outline btn-sm btn-danger" onclick="deleteField(${i})">&times;</button>
+      </td>
+    </tr>`;
+
+    // Inline edit row
+    if (editingFieldIdx === i) {
+      rows += buildEditRow(f, i);
+    }
+  });
+
+  // Add new row
+  if (editingFieldIdx === -2) {
+    rows += buildEditRow({ source: 'Email', field: '', sensitive: false, level: 'Low', why: '' }, -2);
+  }
+
+  tbody.innerHTML = rows;
+}
+
+function buildEditRow(f, idx) {
+  const isNew = idx === -2;
+  const sources = ['Email', 'CRM', 'Order DB', 'Treasury', 'Payment GW', 'Custom'];
+  const levels = ['Low', 'Medium', 'High', 'Critical'];
+  return `<tr class="edit-row">
+    <td colspan="7">
+      <div class="edit-form">
+        <div class="edit-field">
+          <label>Source</label>
+          <select id="ef-source">${sources.map(s => `<option${s === f.source ? ' selected' : ''}>${s}</option>`).join('')}</select>
+        </div>
+        <div class="edit-field">
+          <label>Field Name</label>
+          <input type="text" id="ef-field" value="${f.field}" placeholder="field_name">
+        </div>
+        <div class="edit-field">
+          <label>Sensitive?</label>
+          <select id="ef-sens"><option value="false"${!f.sensitive ? ' selected' : ''}>No</option><option value="true"${f.sensitive ? ' selected' : ''}>Yes</option></select>
+        </div>
+        <div class="edit-field">
+          <label>Level</label>
+          <select id="ef-level">${levels.map(l => `<option${l === f.level ? ' selected' : ''}>${l}</option>`).join('')}</select>
+        </div>
+        <div class="edit-field" style="flex:1;min-width:160px">
+          <label>Rationale</label>
+          <input type="text" id="ef-why" value="${f.why}" placeholder="Why this classification?">
+        </div>
+        <div class="edit-actions">
+          <button class="btn btn-primary btn-sm" onclick="saveField(${idx})">${isNew ? 'Add' : 'Save'}</button>
+          <button class="btn btn-outline btn-sm" onclick="cancelEdit()">Cancel</button>
+        </div>
+      </div>
+    </td>
+  </tr>`;
+}
+
+function startEditField(idx) {
+  editingFieldIdx = idx;
+  renderTaggingTable();
+}
+
+function startAddField() {
+  editingFieldIdx = -2;
+  renderTaggingTable();
+}
+
+function cancelEdit() {
+  editingFieldIdx = -1;
+  renderTaggingTable();
+}
+
+function saveField(idx) {
+  const source = document.getElementById('ef-source').value;
+  const field = document.getElementById('ef-field').value.trim();
+  const sensitive = document.getElementById('ef-sens').value === 'true';
+  const level = document.getElementById('ef-level').value;
+  const why = document.getElementById('ef-why').value.trim();
+
+  if (!field) return;
+
+  if (idx === -2) {
+    // Add new
+    fieldRegistry.push({ n: fieldRegistry.length + 1, source, field, sensitive, level, why });
+    // Auto-add to access matrix with defaults
+    accessMatrix.push({ field, ch: 'Actual value', rb: 'Actual value' });
+  } else {
+    const oldField = fieldRegistry[idx].field;
+    fieldRegistry[idx] = { ...fieldRegistry[idx], source, field, sensitive, level, why };
+    // Update access matrix field name if changed
+    const accEntry = accessMatrix.find(a => a.field === oldField);
+    if (accEntry) accEntry.field = field;
+  }
+
+  editingFieldIdx = -1;
+  cascadeChanges();
+}
+
+function deleteField(idx) {
+  const fieldName = fieldRegistry[idx].field;
+  fieldRegistry.splice(idx, 1);
+  // Renumber
+  fieldRegistry.forEach((f, i) => f.n = i + 1);
+  // Remove from access matrix
+  const accIdx = accessMatrix.findIndex(a => a.field === fieldName);
+  if (accIdx >= 0) accessMatrix.splice(accIdx, 1);
+
+  editingFieldIdx = -1;
+  cascadeChanges();
+}
+
+// ================================================================
+// L3: EDITABLE ACCESS CONTROL (Per-Agent Cards)
+// ================================================================
+const agents = [
+  { key: 'ch', name: 'Complaint Handler', abbr: 'CH', desc: 'Handles incoming merchant complaints, classifies, routes' },
+  { key: 'rb', name: 'RefundBot', abbr: 'RB', desc: 'Evaluates and executes refund decisions' },
+];
+let openAgents = { ch: true, rb: false }; // which cards are expanded
+
+function renderL3Stats() {
+  const total = accessMatrix.length;
+  const chActual = accessMatrix.filter(a => a.ch === 'Actual value').length;
+  const rbActual = accessMatrix.filter(a => a.rb === 'Actual value').length;
+  const noAccess = accessMatrix.filter(a => a.ch === 'No access').length + accessMatrix.filter(a => a.rb === 'No access').length;
+  document.getElementById('l3-stats').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-label">Agents</div>
+      <div class="stat-value">${agents.length}</div>
+      <div class="stat-sub">${agents.map(a => a.name).join(', ')}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Field Policies</div>
+      <div class="stat-value">${total * agents.length}</div>
+      <div class="stat-sub">${total} fields &times; ${agents.length} agents</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Blocked Combinations</div>
+      <div class="stat-value">${noAccess}</div>
+      <div class="stat-sub">"No access" policies active</div>
+    </div>`;
+}
+
+function renderAccessTable() {
+  renderL3Stats();
+  const container = document.getElementById('l3-agents');
+  const opts = ['Actual value', 'Verification', 'No access'];
+
+  container.innerHTML = agents.map(agent => {
+    const isOpen = openAgents[agent.key];
+    const actualCount = accessMatrix.filter(a => a[agent.key] === 'Actual value').length;
+    const verifyCount = accessMatrix.filter(a => a[agent.key] === 'Verification').length;
+    const noneCount = accessMatrix.filter(a => a[agent.key] === 'No access').length;
+
+    let tableRows = accessMatrix.map((a, i) => {
+      const reg = fieldRegistry.find(f => f.field === a.field);
+      const isSens = reg && reg.sensitive;
+      const val = a[agent.key];
+      const selClass = val === 'Actual value' ? 'val-actual' : val === 'Verification' ? 'val-verify' : 'val-none';
+      const enf = getEnforcement(a.field, agent.key);
+      const enfBadge = enf.mode === 'pass' ? 'badge-pass' : enf.mode === 'encrypted' ? 'badge-enc' : enf.mode === 'boolean' ? 'badge-bool' : 'badge-strip';
+      const wsClass = enf.mode === 'encrypted' ? 'ws-enc' : enf.mode === 'boolean' ? 'ws-bool' : enf.mode === 'strip' ? 'ws-strip' : '';
+      const wsText = enf.mode === 'pass' ? a.field : enf.mode === 'encrypted' ? a.field + ' [enc]' : enf.mode === 'boolean' ? 'is_valid_' + a.field.split('_').pop() + ': true' : '\u2014 removed \u2014';
+      return `<tr>
+        <td>${i + 1}</td>
+        <td><code>${a.field}</code></td>
+        <td><span class="badge ${isSens ? 'badge-yes' : 'badge-no'}">${isSens ? 'Yes' : 'No'}</span></td>
+        <td>
+          <select class="access-select ${selClass}" onchange="updateAccess(${i},'${agent.key}',this.value)">
+            ${opts.map(o => `<option${o === val ? ' selected' : ''}>${o}</option>`).join('')}
+          </select>
+        </td>
+        <td><span class="badge ${enfBadge}">${enf.label}</span></td>
+        <td><span class="what-sent ${wsClass}">${wsText}</span></td>
+      </tr>`;
+    }).join('');
+
+    return `<div class="agent-card${isOpen ? ' open' : ''}" id="agent-card-${agent.key}">
+      <div class="agent-card-header" onclick="toggleAgent('${agent.key}')">
+        <div class="agent-card-left">
+          <div class="agent-avatar av-${agent.key}">${agent.abbr}</div>
+          <div class="agent-card-info">
+            <h4>${agent.name}</h4>
+            <div class="agent-sub">${agent.desc}</div>
+          </div>
+        </div>
+        <div class="agent-card-badges">
+          <span class="badge badge-low">${actualCount} actual</span>
+          <span class="badge badge-medium">${verifyCount} verify</span>
+          <span class="badge badge-high">${noneCount} blocked</span>
+          <span class="agent-expand">\u25BC</span>
+        </div>
+      </div>
+      <div class="agent-card-body">
+        <table class="data-table">
+          <thead>
+            <tr><th>#</th><th>Data Field</th><th>Sensitive</th><th>Access Level</th><th>Enforcement</th><th>What LLM Receives</th></tr>
+          </thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleAgent(key) {
+  openAgents[key] = !openAgents[key];
+  const card = document.getElementById('agent-card-' + key);
+  card.classList.toggle('open');
+}
+
+function updateAccess(idx, agent, value) {
+  accessMatrix[idx][agent] = value;
+  cascadeChanges();
+}
+
+// ================================================================
+// CASCADE: Propagate L2/L3 changes to L4, Live Demo, Context Graph
+// ================================================================
+function cascadeChanges() {
+  renderTaggingTable();
+  renderAccessTable();
+  renderEnforcementGrid();
+  renderPipeline('pipeline-l4', true);
+  renderAuditMeta();
+  renderAuditTable();
+  renderContextGraph();
+  // Re-render live demo if active
+  if (demoStep >= 0) {
+    renderDemoChecks();
+  }
+}
+
+function renderEnforcementGrid() {
+  document.getElementById('enforce-grid').innerHTML = enforcementModes.map(m => `
+    <div class="enforce-card">
+      <div class="ec-title" style="color:var(${m.colorVar})">${m.title}</div>
+      <div class="ec-cond">${m.cond}</div>
+      <div class="ec-result" style="color:var(${m.colorVar})">${m.result}</div>
+    </div>
+  `).join('');
+
+  // Per-agent enforcement mapping
+  const container = document.getElementById('l4-agent-maps');
+  container.innerHTML = agents.map(agent => {
+    const rows = accessMatrix.map((a, i) => {
+      const reg = fieldRegistry.find(f => f.field === a.field);
+      const isSens = reg ? reg.sensitive : false;
+      const sensLevel = reg ? reg.level : 'Low';
+      const accessVal = a[agent.key];
+      const enf = getEnforcement(a.field, agent.key);
+      const enfBadge = enf.mode === 'pass' ? 'badge-pass' : enf.mode === 'encrypted' ? 'badge-enc' : enf.mode === 'boolean' ? 'badge-bool' : 'badge-strip';
+      const sensClass = sensLevel === 'Low' ? 'badge-low' : sensLevel === 'Medium' ? 'badge-medium' : sensLevel === 'High' ? 'badge-high' : 'badge-critical';
+      const accClass = accessVal === 'Actual value' ? 'access-actual' : accessVal === 'Verification' ? 'access-verify' : 'access-none';
+      const wsClass = enf.mode === 'encrypted' ? 'ws-enc' : enf.mode === 'boolean' ? 'ws-bool' : enf.mode === 'strip' ? 'ws-strip' : '';
+      const wsText = enf.mode === 'pass' ? a.field
+        : enf.mode === 'encrypted' ? a.field + ' [encrypted]'
+        : enf.mode === 'boolean' ? 'is_valid_' + a.field.split('_').pop() + ': true'
+        : '\u2014 removed \u2014';
+      return `<tr>
+        <td>${i + 1}</td>
+        <td><code>${a.field}</code></td>
+        <td><span class="badge ${isSens ? 'badge-yes' : 'badge-no'}">${isSens ? 'Yes' : 'No'}</span></td>
+        <td><span class="badge ${sensClass}">${sensLevel}</span></td>
+        <td><span class="${accClass}">${accessVal}</span></td>
+        <td style="font-size:0.78rem;color:var(--text-muted)">\u2192</td>
+        <td><span class="badge ${enfBadge}">${enf.label}</span></td>
+        <td><span class="what-sent ${wsClass}">${wsText}</span></td>
+      </tr>`;
+    }).join('');
+
+    const passC = accessMatrix.filter(a => getEnforcement(a.field, agent.key).mode === 'pass').length;
+    const encC = accessMatrix.filter(a => getEnforcement(a.field, agent.key).mode === 'encrypted').length;
+    const boolC = accessMatrix.filter(a => getEnforcement(a.field, agent.key).mode === 'boolean').length;
+    const stripC = accessMatrix.filter(a => getEnforcement(a.field, agent.key).mode === 'strip').length;
+
+    return `<div class="table-wrap">
+      <div class="table-bar">
+        <h3 style="display:flex;align-items:center;gap:10px">
+          <span class="agent-avatar av-${agent.key}" style="width:28px;height:28px;font-size:11px">${agent.abbr}</span>
+          ${agent.name} — Field Enforcement Map
+        </h3>
+        <div style="display:flex;gap:6px">
+          <span class="badge badge-pass">${passC} pass</span>
+          <span class="badge badge-enc">${encC} encrypted</span>
+          <span class="badge badge-bool">${boolC} boolean</span>
+          <span class="badge badge-strip">${stripC} stripped</span>
+        </div>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Field</th>
+            <th>Sensitive</th>
+            <th>Level</th>
+            <th>Access (L3)</th>
+            <th></th>
+            <th>Enforcement (L4)</th>
+            <th>What LLM Receives</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+  }).join('');
+}
+
+// ================================================================
+// RENDER: AUDIT
+// ================================================================
+function buildAuditLog() {
+  return workflowSteps.map((step, i) => {
+    const ak = agentKeyForStep(step);
+    const ts = new Date(2026, 3, 29, 10, 30 + i, 0);
+    return {
+      n: i + 1,
+      ts: ts.toISOString().slice(0,19).replace('T',' '),
+      step: step.label,
+      agent: step.agent,
+      action: step.type,
+      fieldsReceived: step.fields.join(', '),
+      l2Tags: step.fields.map(f => { const r = fieldRegistry.find(x => x.field === f); return r ? (r.sensitive ? 'S' : '\u2014') : '\u2014'; }).join(', '),
+      l3Access: step.fields.map(f => { const a = accessMatrix.find(x => x.field === f); if (!a) return '\u2014'; const v = ak === 'rb' ? a.rb : a.ch; return v === 'Actual value' ? 'A' : v === 'Verification' ? 'V' : 'X'; }).join(', '),
+      l4Enforce: step.fields.map(f => { const e = getEnforcement(f, ak); return e.mode === 'pass' ? 'P' : e.mode === 'encrypted' ? 'E' : e.mode === 'boolean' ? 'B' : 'X'; }).join(', '),
+      whatLLM: step.fields.map(f => { const e = getEnforcement(f, ak); if (e.mode === 'strip') return null; if (e.mode === 'encrypted') return f+' [enc]'; if (e.mode === 'boolean') return 'is_valid_'+f.split('_').pop()+': true'; return f; }).filter(Boolean).join(', '),
+      hash: getHash(i),
+      prevHash: i === 0 ? '000000000000...' : getHash(i - 1),
+    };
+  });
+}
+
+function renderAuditMeta() {
+  document.getElementById('audit-meta').innerHTML = `
+    <div class="meta-item"><label>Workflow ID</label><span>WF-20260429-001</span></div>
+    <div class="meta-item"><label>Date</label><span>2026-04-29</span></div>
+    <div class="meta-item"><label>Total Steps</label><span>14</span></div>
+    <div class="meta-item"><label>Root Hash</label><span class="hash-val">${getHash(13)}</span></div>
+    <div class="meta-item"><label>Signed By</label><span>governance-svc-v2.1</span></div>
+  `;
+}
+
+function renderAuditTable() {
+  const log = buildAuditLog();
+  document.querySelector('#audit-table tbody').innerHTML = log.map(e => `<tr>
+    <td>${e.n}</td>
+    <td style="white-space:nowrap">${e.ts}</td>
+    <td>${e.step}</td>
+    <td>${e.agent}</td>
+    <td>${e.action}</td>
+    <td>${e.fieldsReceived}</td>
+    <td>${e.l2Tags}</td>
+    <td>${e.l3Access}</td>
+    <td>${e.l4Enforce}</td>
+    <td>${e.whatLLM}</td>
+    <td><span class="hash-val">${e.hash}</span></td>
+    <td><span class="hash-val">${e.prevHash}</span></td>
+  </tr>`).join('');
+}
+
+// ================================================================
+// LIVE DEMO
+// ================================================================
+let demoStep = -1;
+
+function renderDemoSidebar() {
+  const sb = document.getElementById('demo-sidebar');
+  const icons = { agent:'\u25C6', llm:'\u25CB', tool:'\u25A0', handoff:'\u2192', trigger:'\u25B6', response:'\u2713' };
+  sb.innerHTML = workflowSteps.map((step, i) => {
+    const cls = i < demoStep ? 'done' : i === demoStep ? 'current' : 'pending';
+    return `<div class="mini-node ${cls}">${icons[step.type] || '\u25CB'} ${step.label}</div>${i < workflowSteps.length - 1 ? '<div class="mini-arrow">\u2193</div>' : ''}`;
+  }).join('');
+}
+
+function renderDemoChecks() {
+  const panel = document.getElementById('check-panel');
+  const title = document.getElementById('demo-step-title');
+  const counter = document.getElementById('step-counter');
+
+  if (demoStep < 0) {
+    title.textContent = 'Click "Next Step" to begin the workflow';
+    panel.innerHTML = '';
+    counter.textContent = 'Step 0 / 14';
+    return;
+  }
+
+  const step = workflowSteps[demoStep];
+  const ak = agentKeyForStep(step);
+  title.textContent = `Step ${demoStep + 1}: ${step.label}`;
+  counter.textContent = `Step ${demoStep + 1} / ${workflowSteps.length}`;
+
+  const sensitiveFields = step.fields.filter(f => { const r = fieldRegistry.find(x => x.field === f); return r && r.sensitive; });
+  const accessInfo = step.fields.map(f => { const a = accessMatrix.find(x => x.field === f); const v = a ? (ak === 'rb' ? a.rb : a.ch) : 'Actual value'; return `${f}: ${v}`; }).join('\n');
+  const enforceInfo = step.fields.map(f => { const e = getEnforcement(f, ak); return `${f} \u2192 ${e.label}`; }).join('\n');
+
+  const payload = {};
+  step.fields.forEach(f => {
+    const e = getEnforcement(f, ak);
+    if (e.mode === 'strip') return;
+    if (e.mode === 'encrypted') payload[f] = '[ENCRYPTED]';
+    else if (e.mode === 'boolean') payload['is_valid_' + f.split('_').pop()] = true;
+    else payload[f] = mockVals[f] || f;
+  });
+
+  const noAnim = !settings.animations;
+  const checks = [
+    { cls:'check-l1', label:'Layer 1 \u2014 Context Graph', body:`Fields present: ${step.fields.join(', ')}\nSource: ${step.source}` },
+    { cls:'check-l2', label:'Layer 2 \u2014 Data Tagging', body: sensitiveFields.length > 0 ? `Sensitive fields: ${sensitiveFields.join(', ')}` : 'No sensitive fields at this step.' },
+    { cls:'check-l3', label:'Layer 3 \u2014 Access Control', body:`Agent: ${step.agent}\n${accessInfo}` },
+    { cls:'check-l4', label:'Layer 4 \u2014 Enforcement', body: enforceInfo },
+    { cls:'check-result', label:'Final Payload Sent', body:'' },
+  ];
+
+  panel.innerHTML = checks.map((c, i) => `
+    <div class="check-step ${c.cls}${noAnim ? ' no-animate' : ''}" id="ck-${i}">
+      <div class="ck-label">${c.label}</div>
+      <div class="ck-body" style="white-space:pre-wrap">${c.body}</div>
+      ${i === checks.length - 1 ? `<div class="payload-box">${JSON.stringify(payload, null, 2)}</div>` : ''}
+    </div>
+  `).join('');
+
+  checks.forEach((_, i) => {
+    const delay = noAnim ? 0 : settings.animSpeed * (i + 1);
+    setTimeout(() => {
+      const el = document.getElementById('ck-' + i);
+      if (el) el.classList.add('visible');
+    }, delay);
+  });
+}
+
+function demoNext() { if (demoStep < workflowSteps.length - 1) { demoStep++; renderDemoSidebar(); renderDemoChecks(); updateDemoButtons(); } }
+function demoPrev() { if (demoStep > 0) { demoStep--; renderDemoSidebar(); renderDemoChecks(); updateDemoButtons(); } }
+function demoReset() { demoStep = -1; renderDemoSidebar(); renderDemoChecks(); updateDemoButtons(); }
+function updateDemoButtons() {
+  document.getElementById('btn-prev').disabled = demoStep <= 0;
+  document.getElementById('btn-next').disabled = demoStep >= workflowSteps.length - 1;
+}
+
+// ================================================================
+// TAB SWITCHING
+// ================================================================
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ================================================================
+// SETTINGS CONTROLS
+// ================================================================
+const overlay = document.getElementById('settings-overlay');
+document.getElementById('settings-toggle').addEventListener('click', () => overlay.classList.add('open'));
+document.getElementById('settings-close').addEventListener('click', () => overlay.classList.remove('open'));
+overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+
+document.getElementById('toggle-theme').addEventListener('change', function() {
+  settings.theme = this.checked ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', settings.theme);
+});
+
+document.getElementById('toggle-compact').addEventListener('change', function() {
+  settings.compact = this.checked;
+  document.getElementById('main-content').classList.toggle('compact', this.checked);
+});
+
+document.getElementById('select-speed').addEventListener('change', function() {
+  settings.animSpeed = parseInt(this.value);
+});
+
+document.getElementById('toggle-animations').addEventListener('change', function() {
+  settings.animations = this.checked;
+});
+
+document.getElementById('toggle-sources').addEventListener('change', function() {
+  settings.showSources = this.checked;
+  renderContextGraph();
+  renderPipeline('pipeline-l4', true);
+});
+
+document.getElementById('select-hash').addEventListener('change', function() {
+  settings.hashDisplay = this.value;
+  renderAuditMeta();
+  renderAuditTable();
+});
+
+// ================================================================
+// INIT
+// ================================================================
+function renderAll() {
+  renderContextGraph();
+  renderTaggingTable();
+  renderAccessTable();
+  renderEnforcementGrid();
+  renderPipeline('pipeline-l4', true);
+  renderAuditMeta();
+  renderAuditTable();
+  renderDemoSidebar();
+  renderDemoChecks();
+}
+renderAll();
+
+document.getElementById('btn-next').addEventListener('click', demoNext);
+document.getElementById('btn-prev').addEventListener('click', demoPrev);
+document.getElementById('btn-reset').addEventListener('click', demoReset);
+</script>
+</body>
+</html>

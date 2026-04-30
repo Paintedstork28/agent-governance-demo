@@ -1,0 +1,57 @@
+PROJECT SUMMARY — Agent Data Governance Demo
+==============================================
+
+1. Project Concept
+-------------------
+Interactive demo showcasing a 5-layer agent data governance framework.
+Uses a complaint-handling workflow (Complaint Handler → RefundBot) to
+demonstrate how enterprise data governance works in multi-agent systems.
+Target audience: fintech stakeholders, regulators, investors.
+
+2. How It Was Built
+--------------------
+- Single index.html with embedded CSS + JS (~900 lines)
+- No frameworks or dependencies
+- Dark theme matching existing demo design language
+- 6 tabs: L1 Context Graph, L2 Data Tagging, L3 Access Control,
+  L4 Enforcement, L5 Audit Trail, Live Demo
+
+3. Database Structure
+----------------------
+All data is mock/embedded in JS:
+- workflowSteps: 14-step pipeline (trigger → agents → LLM calls → tools → response)
+- fieldRegistry: 14 data fields with sensitivity classification
+- accessMatrix: per-agent access policy (Actual/Verification/No access)
+- auditLog: derived from above, 14 entries with hash chain
+
+4. Data Sources
+----------------
+All mock data — no external APIs or databases.
+
+5. APIs & Costs
+----------------
+None. Fully static, zero cost.
+
+6. Data Refresh
+----------------
+Static demo — no refresh needed.
+
+7. Deployment
+--------------
+- Local: open index.html in browser
+- Production: GitHub Pages (Paintedstork28 repo)
+- Folder: ~/Desktop/claude-projects/agent-governance-demo/
+
+8. What It Can Be Used For
+---------------------------
+- Pitch decks for agent governance products
+- Regulator education on AI agent data handling
+- Internal training on the 5-layer framework
+- Conference demos and talks
+
+9. Suggested Next Steps
+------------------------
+- Add export to PDF/PNG for slides
+- Add theme toggle (light/dark)
+- Add more workflow examples beyond complaint handling
+- Add interactive field editing (change sensitivity, see enforcement update)
